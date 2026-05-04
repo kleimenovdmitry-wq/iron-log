@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D0D">
+<title>IRON LOG</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0D0D0D;color:#E8E8E8;font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;min-height:100dvh;max-width:480px;margin:0 auto;padding:12px;padding-top:env(safe-area-inset-top,12px);overflow-x:hidden}
+input[type=number]{-webkit-appearance:none;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:4px}
+.logo{font-size:20px;font-weight:800;letter-spacing:3px;color:#fff}
+.week-badge{background:#1A1A1A;border:1px solid #333;border-radius:20px;padding:5px 12px;font-size:12px;color:#aaa}
+.section-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.workout-grid{display:flex;gap:8px;margin-bottom:16px}
+.workout-card{flex:1;background:#1A1A1A;border:none;border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer}
+.workout-card:active{transform:scale(0.96)}
+.wc-icon{font-size:22px;margin-bottom:4px}
+.wc-name{font-size:11px;font-weight:600;color:#ddd;margin-bottom:3px}
+.wc-status{font-size:18px;margin-top:3px;font-weight:700}
+.next-btn{width:100%;border:none;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:20px}
+.next-btn:active{transform:scale(0.98)}
+.next-btn-icon{font-size:24px}
+.next-btn-text{font-size:16px;font-weight:700;color:#fff;flex:1;text-align:left}
+.next-btn-arrow{font-size:20px;color:rgba(255,255,255,0.7)}
+.history-btn{width:100%;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:12px;padding:14px;color:#aaa;font-size:14px;cursor:pointer;margin-top:4px}
+.back-btn{background:none;border:none;color:#888;font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:6px}
+.session-header{padding-bottom:10px;margin-bottom:12px}
+.session-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
+.progress-outer{height:5px;background:#2A2A2A;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.progress-inner{height:100%;border-radius:3px;transition:width 0.3s ease}
+.progress-text{font-size:11px;color:#666}
+.exercise-list{display:flex;flex-direction:column;gap:10px;padding-bottom:72px}
+.exercise-card{background:#1A1A1A;border-radius:12px;padding:10px 12px}
+.ex-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px}
+.ex-name{font-size:14px;font-weight:600;color:#fff;word-break:break-word}
+.ex-muscle{font-size:11px;color:#666;margin-top:1px}
+.last-weight{font-size:10px;color:#888;background:#252525;padding:3px 6px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+.sets-grid{display:flex;flex-direction:column;gap:5px}
+.set-row{display:flex;align-items:center;gap:6px}
+.set-num{width:18px;font-size:12px;color:#555;font-weight:600;text-align:center;flex-shrink:0}
+.set-input{flex:1;background:#252525;border:1px solid #333;border-radius:8px;padding:8px 4px;color:#fff;font-size:14px;text-align:center;outline:none;min-width:0}
+.set-input:focus{border-color:#555}
+.check-ind{width:28px;height:28px;border-radius:7px;border:1.5px solid #333;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;opacity:0.8}
+.check-ind.done{color:#fff;opacity:1}
+.finish-btn{position:fixed;bottom:env(safe-area-inset-bottom,12px);left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:456px;border:none;border-radius:12px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;z-index:10}
+@media(max-width:375px){
+body{padding:8px}
+.logo{font-size:17px;letter-spacing:2px}
+.week-badge{padding:4px 10px;font-size:11px}
+.section-label{font-size:11px}
+.workout-card{padding:10px 4px;border-radius:10px}
+.wc-icon{font-size:18px;margin-bottom:2px}
+.wc-name{font-size:10px}
+.wc-status{font-size:16px}
+.next-btn{padding:14px;gap:10px}
+.next-btn-icon{font-size:20px}
+.next-btn-text{font-size:14px}
+.session-title{font-size:16px}
+.exercise-card{padding:8px 10px}
+.ex-name{font-size:13px}
+.ex-muscle{font-size:10px}
+.set-row{gap:4px}
+.set-num{width:14px;font-size:11px}
+.set-input{padding:7px 2px;font-size:13px;border-radius:6px}
+.check-ind{width:24px;height:24px;font-size:11px;border-radius:6px}
+.finish-btn{padding:14px;font-size:14px;border-radius:10px;width:calc(100% - 16px)}
+.history-btn{padding:12px;font-size:13px}
+.last-weight{font-size:9px;padding:2px 5px}
+}
+.done-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh}
+.done-emoji{font-size:64px;margin-bottom:16px}
+.done-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:8px}
+.done-subtitle{font-size:16px;color:#888;margin-bottom:32px}
+.done-btn{background:#27AE60;border:none;border-radius:14px;padding:16px 40px;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.history-header{margin-bottom:20px}
+.history-title{font-size:20px;font-weight:700;color:#fff;margin-top:8px}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-card{background:#1A1A1A;border-radius:12px;padding:14px}
+.history-card-top{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:#ddd;margin-bottom:6px}
+.history-date{font-size:12px;color:#666}
+.history-detail{font-size:12px;color:#888;line-height:1.5}
+.history-ex-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.history-ex-item{border-top:1px solid #252525;padding-top:8px}
+.history-ex-name{font-size:13px;font-weight:600;color:#ccc;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.history-delta{font-size:11px;font-weight:700}
+.history-sets-row{display:flex;flex-wrap:wrap;gap:5px}
+.history-set-badge{background:#252525;border-radius:6px;padding:4px 8px;font-size:11px;color:#aaa;white-space:nowrap}
+.empty-history{text-align:center;color:#555;padding:40px 0;font-size:15px}
+.loading{text-align:center;padding:60px 0;color:#666;font-size:16px}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Загрузка...</div></div>
+<script>
+const WORKOUTS={
+A:{name:"Грудь + Трицепс",icon:"💪",color:"#E74C3C",exercises:[
+{id:"a1",name:"Жим штанги лёжа",sets:4,reps:"10",muscle:"Грудь"},
+{id:"a2",name:"Разводка гантелей лёжа",sets:3,reps:"10-12",muscle:"Грудь"},
+{id:"a3",name:"Жим гантелей наклон 30°",sets:3,reps:"10",muscle:"Верх груди"},
+{id:"a4",name:"Французский жим лёжа",sets:3,reps:"10-12",muscle:"Трицепс"},
+{id:"a5",name:"Тяга блока вниз узкий хват",sets:3,reps:"12",muscle:"Трицепс"},
+{id:"a6",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
+]},
+B:{name:"Спина + Бицепс",icon:"🏋️",color:"#2980B9",exercises:[
+{id:"b1",name:"Тяга горизонт. блока к поясу",sets:4,reps:"10-12",muscle:"Спина"},
+{id:"b2",name:"Тяга верт. блока к груди",sets:4,reps:"10",muscle:"Широчайшие"},
+{id:"b3",name:"Тяга гантели одной рукой",sets:3,reps:"10",muscle:"Широчайшие"},
+{id:"b4",name:"Гиперэкстензия без веса",sets:3,reps:"15",muscle:"Разгибатели"},
+{id:"b5",name:"Подъём штанги на бицепс",sets:3,reps:"10-12",muscle:"Бицепс"},
+{id:"b6",name:"Молотковые сгибания",sets:3,reps:"10",muscle:"Бицепс"},
+{id:"b7",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
+]},
+C:{name:"Плечи + Пресс",icon:"🔥",color:"#27AE60",exercises:[
+{id:"c1",name:"Жим гантелей сидя",sets:4,reps:"10",muscle:"Плечи"},
+{id:"c2",name:"Разводка гантелей в стороны",sets:3,reps:"12",muscle:"Ср. дельты"},
+{id:"c3",name:"Тяга штанги к подбородку",sets:3,reps:"10",muscle:"Дельты"},
+{id:"c4",name:"Разводка в наклоне",sets:3,reps:"12",muscle:"Задн. дельты"},
+{id:"c5",name:"Скручивания лёжа",sets:3,reps:"15-20",muscle:"Пресс"},
+{id:"c6",name:"Планка",sets:3,reps:"30-40 сек",muscle:"Кор"},
+{id:"c7",name:"Подъём ног в висе",sets:3,reps:"10-12",muscle:"Нижний пресс"},
+{id:"c8",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
+]}
+};
+const SKEY="iron-log-v2";
+const allExDefs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises];
+let data={sessions:[],startDate:today()};
+let view="home";
+let activeType=null;
+let sessionData={};
+
+function today(){return new Date().toISOString().split("T")[0]}
+function fmtDate(s){const d=new Date(s+"T12:00:00");const dd=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];const mm=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];return dd[d.getDay()]+", "+d.getDate()+" "+mm[d.getMonth()]}
+function load(){try{const s=localStorage.getItem(SKEY);if(s)data=JSON.parse(s)}catch(e){}}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(data))}catch(e){}}
+function nextType(){if(!data.sessions.length)return"A";const l=data.sessions[data.sessions.length-1].type;return l==="A"?"B":l==="B"?"C":"A"}
+function weekNum(){const s=new Date(data.startDate+"T12:00:00");const n=new Date();return Math.min(Math.max(Math.floor((n-s)/(7*864e5))+1,1),4)}
+function lastWeight(exId){for(let i=data.sessions.length-1;i>=0;i--){const s=data.sessions[i];if(s.exercises[exId]){const st=s.exercises[exId].sets.filter(x=>x.weight).pop();if(st)return st.weight}}return null}
+
+function render(){
+const app=document.getElementById("app");
+if(view==="home")renderHome(app);
+else if(view==="session")renderSession(app);
+else if(view==="done")renderDone(app);
+else if(view==="history")renderHistory(app);
+}
+
+function renderHome(el){
+const next=nextType();const w=WORKOUTS[next];const wk=weekNum();
+const now=Date.now();const weekAgo=now-7*864e5;
+const done={A:false,B:false,C:false};
+data.sessions.forEach(s=>{if(s.ts>weekAgo)done[s.type]=true});
+let h=`<div class="header"><div class="logo">IRON LOG</div><div class="week-badge">Неделя ${wk}/4</div></div>`;
+h+=`<div class="section-label">Тренировки на этой неделе</div><div class="workout-grid">`;
+for(const[k,v]of Object.entries(WORKOUTS)){
+h+=`<div class="workout-card" style="border-top:3px solid ${v.color}" onclick="startWorkout('${k}')">
+<div class="wc-icon">${v.icon}</div><div class="wc-name">${v.name}</div>
+<div class="wc-status" style="color:${done[k]?'#27AE60':'#555'}">${done[k]?'✓':'○'}</div></div>`;
+}
+h+=`</div><div class="section-label">Следующая тренировка</div>`;
+h+=`<div class="next-btn" style="background:${w.color}" onclick="startWorkout('${next}')">
+<span class="next-btn-icon">${w.icon}</span><span class="next-btn-text">${w.name}</span><span class="next-btn-arrow">→</span></div>`;
+h+=`<div class="history-btn" onclick="goHistory()">📋 История тренировок</div>`;
+el.innerHTML=h;
+}
+
+function renderSession(el){
+const wo=WORKOUTS[activeType];
+let totalS=0,doneS=0;
+for(const ex of wo.exercises){const sd=sessionData[ex.id];totalS+=sd.sets.length;doneS+=sd.sets.filter(s=>s.done).length}
+const pct=totalS?Math.round(doneS/totalS*100):0;
+let h=`<div class="session-header" style="border-bottom:3px solid ${wo.color}">
+<div class="back-btn" onclick="goHome()">← Назад</div>
+<div class="session-title">${wo.icon} ${wo.name}</div>
+<div class="progress-outer"><div class="progress-inner" style="width:${pct}%;background:${wo.color}"></div></div>
+<div class="progress-text">${doneS}/${totalS} подходов</div></div>`;
+h+=`<div class="exercise-list">`;
+for(const ex of wo.exercises){
+const lw=lastWeight(ex.id);const unit=ex.cardio?"км/ч":"кг";const runit=ex.cardio?"мин":"раз";
+h+=`<div class="exercise-card"><div class="ex-header"><div><div class="ex-name">${ex.name}</div>
+<div class="ex-muscle">${ex.muscle} · ${ex.sets}×${ex.reps}</div></div>`;
+if(lw)h+=`<div class="last-weight">Прошлый: ${lw} ${unit}</div>`;
+h+=`</div><div class="sets-grid">`;
+sessionData[ex.id].sets.forEach((s,i)=>{
+const isDone=s.done;
+h+=`<div class="set-row"><div class="set-num">${i+1}</div>
+<input type="number" inputmode="decimal" placeholder="${unit}" value="${s.weight}" class="set-input" onchange="updSet('${ex.id}',${i},'weight',this.value)">
+<input type="number" inputmode="numeric" placeholder="${runit}" value="${s.reps}" class="set-input" onchange="updSet('${ex.id}',${i},'reps',this.value)">
+<div class="check-ind${isDone?' done':''}" style="background:${isDone?wo.color:'transparent'};border-color:${isDone?wo.color:'#333'};color:${isDone?'#fff':'#333'}">${isDone?'✓':'○'}</div></div>`;
+});
+h+=`</div></div>`;
+}
+h+=`</div>`;
+const canFinish=doneS>0;
+h+=`<button class="finish-btn" style="background:${doneS===totalS?wo.color:'#555'};opacity:${canFinish?1:0.5}" ${canFinish?'':'disabled'} onclick="finishWorkout()">Завершить тренировку</button>`;
+el.innerHTML=h;
+}
+
+function renderDone(el){
+const wo=WORKOUTS[activeType];
+el.innerHTML=`<div class="done-screen"><div class="done-emoji">🎯</div>
+<div class="done-title">Тренировка записана!</div>
+<div class="done-subtitle">${wo.icon} ${wo.name}</div>
+<button class="done-btn" onclick="goHome()">На главную</button></div>`;
+}
+
+function renderHistory(el){
+const sessions=[...data.sessions].reverse();
+let h=`<div class="history-header"><div class="back-btn" onclick="goHome()">← Назад</div>
+<div class="history-title">История тренировок</div></div>`;
+if(!sessions.length){h+=`<div class="empty-history">Пока нет записей</div>`;el.innerHTML=h;return}
+h+=`<div class="history-list">`;
+for(const s of sessions){
+const w=WORKOUTS[s.type];
+let totalS=0,doneS=0;
+for(const ex of Object.values(s.exercises)){totalS+=ex.sets.length;doneS+=ex.sets.filter(st=>st.done).length}
+h+=`<div class="history-card" style="border-left:4px solid ${w.color}">
+<div class="history-card-top"><span>${w.icon} ${w.name}</span><span class="history-date">${fmtDate(s.date)}</span></div>
+<div class="history-detail">${doneS}/${totalS} подходов</div><div class="history-ex-list">`;
+for(const[exId,exData]of Object.entries(s.exercises)){
+const exDef=allExDefs.find(e=>e.id===exId);
+const exName=exDef?exDef.name:exId;
+const isCardio=exDef&&exDef.cardio;
+const wUnit=isCardio?"км/ч":"кг";const rUnit=isCardio?"мин":"×";
+const doneSetsEx=exData.sets.filter(st=>st.done);
+if(!doneSetsEx.length)continue;
+let prevMax=null;
+for(let j=data.sessions.length-1;j>=0;j--){const ps=data.sessions[j];if(ps.ts>=s.ts)continue;if(ps.exercises[exId]){const pSets=ps.exercises[exId].sets.filter(st=>st.weight);if(pSets.length){prevMax=Math.max(...pSets.map(st=>Number(st.weight)||0));break}}}
+const curMax=Math.max(...exData.sets.map(st=>Number(st.weight)||0));
+let delta=null;if(prevMax!==null&&curMax>0)delta=curMax-prevMax;
+h+=`<div class="history-ex-item"><div class="history-ex-name">${exName}`;
+if(delta!==null&&delta!==0)h+=` <span class="history-delta" style="color:${delta>0?'#27AE60':'#E74C3C'}">${delta>0?'+'+delta:delta} ${wUnit}</span>`;
+h+=`</div><div class="history-sets-row">`;
+exData.sets.forEach(st=>{
+h+=`<div class="history-set-badge" style="opacity:${st.done?1:0.35}">${st.weight?st.weight+wUnit:'—'}${st.reps?' '+rUnit+st.reps:''}</div>`;
+});
+h+=`</div></div>`;
+}
+h+=`</div></div>`;
+}
+h+=`</div>`;
+el.innerHTML=h;
+}
+
+function startWorkout(type){
+activeType=type;const wo=WORKOUTS[type];sessionData={};
+wo.exercises.forEach(ex=>{sessionData[ex.id]={sets:Array.from({length:ex.sets},()=>({weight:"",reps:"",done:false}))}});
+view="session";render();
+}
+function updSet(exId,idx,field,val){
+sessionData[exId].sets[idx][field]=val;
+const s=sessionData[exId].sets[idx];
+s.done=s.weight!==""&&s.reps!=="";
+render();
+}
+function finishWorkout(){
+data.sessions.push({date:today(),type:activeType,exercises:JSON.parse(JSON.stringify(sessionData)),ts:Date.now()});
+save();view="done";render();
+}
+function goHome(){view="home";activeType=null;render()}
+function goHistory(){view="history";render()}
+
+load();render();
+</script>
+</body>
+</html>
