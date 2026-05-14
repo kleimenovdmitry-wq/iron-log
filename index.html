@@ -47,6 +47,15 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .set-input:focus{border-color:#555}
 .check-ind{width:28px;height:28px;border-radius:7px;border:1.5px solid #333;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;opacity:0.8}
 .check-ind.done{color:#fff;opacity:1}
+.add-set-btn{background:none;border:1px dashed #333;border-radius:6px;padding:6px;color:#555;font-size:11px;cursor:pointer;width:100%;margin-top:4px}
+.del-set-btn{width:28px;height:28px;border-radius:7px;border:none;background:#252525;color:#555;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.ex-actions{display:flex;gap:6px;margin-top:8px}
+.del-ex-btn{background:#252525;border:none;border-radius:6px;padding:6px 10px;color:#E74C3C;font-size:11px;cursor:pointer}
+.add-ex-btn{background:#1A1A1A;border:1px dashed #333;border-radius:12px;padding:12px;color:#555;font-size:13px;cursor:pointer;width:100%;text-align:center;margin-top:4px}
+.add-ex-form{display:flex;gap:6px;margin-top:4px}
+.add-ex-input{flex:1;background:#252525;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:13px;outline:none}
+.add-ex-ok{width:36px;height:36px;background:#27AE60;border:none;border-radius:8px;color:#fff;font-size:16px;cursor:pointer}
+.add-ex-no{width:36px;height:36px;background:#333;border:none;border-radius:8px;color:#888;font-size:16px;cursor:pointer}
 .finish-btn{position:fixed;bottom:env(safe-area-inset-bottom,12px);left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:456px;border:none;border-radius:12px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;z-index:10}
 @media(max-width:375px){
 body{padding:8px}
@@ -182,7 +191,7 @@ h+=`<div class="exercise-list">`;
 for(const ex of wo.exercises){
 const lw=lastWeight(ex.id);const unit=ex.cardio?"км/ч":"кг";const runit=ex.cardio?"мин":"раз";
 h+=`<div class="exercise-card"><div class="ex-header"><div><div class="ex-name">${ex.name}</div>
-<div class="ex-muscle">${ex.muscle} · ${ex.sets}×${ex.reps}</div></div>`;
+<div class="ex-muscle">${ex.muscle}${ex.muscle?' · ':''}${ex.sets}×${ex.reps}</div></div>`;
 if(lw)h+=`<div class="last-weight">Прошлый: ${lw} ${unit}</div>`;
 h+=`</div><div class="sets-grid">`;
 sessionData[ex.id].sets.forEach((s,i)=>{
@@ -190,9 +199,18 @@ const isDone=s.done;
 h+=`<div class="set-row"><div class="set-num">${i+1}</div>
 <input type="number" inputmode="decimal" placeholder="${unit}" value="${s.weight}" class="set-input" onchange="updSet('${ex.id}',${i},'weight',this.value)">
 <input type="number" inputmode="numeric" placeholder="${runit}" value="${s.reps}" class="set-input" onchange="updSet('${ex.id}',${i},'reps',this.value)">
-<div class="check-ind${isDone?' done':''}" style="background:${isDone?wo.color:'transparent'};border-color:${isDone?wo.color:'#333'};color:${isDone?'#fff':'#333'}">${isDone?'✓':'○'}</div></div>`;
+<div class="check-ind${isDone?' done':''}" style="background:${isDone?wo.color:'transparent'};border-color:${isDone?wo.color:'#333'};color:${isDone?'#fff':'#333'}">${isDone?'✓':'○'}</div>
+<div class="del-set-btn" onclick="delSet('${ex.id}',${i})">−</div></div>`;
 });
-h+=`</div></div>`;
+h+=`</div>`;
+h+=`<div class="add-set-btn" onclick="addSet('${ex.id}')">+ подход</div>`;
+h+=`<div class="ex-actions"><div class="del-ex-btn" onclick="delExercise('${ex.id}')">Удалить упражнение</div></div>`;
+h+=`</div>`;
+}
+if(showAddEx){
+h+=`<div class="add-ex-form"><input type="text" id="new-ex-name" placeholder="Название упражнения" class="add-ex-input"><div class="add-ex-ok" onclick="addExercise()">+</div><div class="add-ex-no" onclick="showAddEx=false;render()">✕</div></div>`;
+}else{
+h+=`<div class="add-ex-btn" onclick="showAddEx=true;render()">+ Добавить упражнение</div>`;
 }
 h+=`</div>`;
 const canFinish=doneS>0;
@@ -261,8 +279,39 @@ function finishWorkout(){
 data.sessions.push({date:today(),type:activeType,exercises:JSON.parse(JSON.stringify(sessionData)),ts:Date.now()});
 save();view="done";render();
 }
-function goHome(){view="home";activeType=null;render()}
+function goHome(){view="home";activeType=null;showAddEx=false;render()}
 function goHistory(){view="history";render()}
+
+let showAddEx=false;
+
+function addSet(exId){
+sessionData[exId].sets.push({weight:"",reps:"",done:false});
+render();
+}
+function delSet(exId,idx){
+if(sessionData[exId].sets.length<=1)return;
+sessionData[exId].sets.splice(idx,1);
+render();
+}
+function addExercise(){
+const n=document.getElementById("new-ex-name");
+const name=(n?n.value:"").trim();
+if(!name){showAddEx=false;render();return}
+const id="custom_"+Date.now();
+const wo=WORKOUTS[activeType];
+const newEx={id:id,name:name,sets:3,reps:"10",muscle:"",cardio:false};
+wo.exercises.push(newEx);
+sessionData[id]={sets:Array.from({length:3},()=>({weight:"",reps:"",done:false}))};
+showAddEx=false;render();
+}
+function delExercise(exId){
+const wo=WORKOUTS[activeType];
+const ex=wo.exercises.find(e=>e.id===exId);
+if(!confirm("Удалить «"+(ex?ex.name:"")+"»?"))return;
+wo.exercises=wo.exercises.filter(e=>e.id!==exId);
+delete sessionData[exId];
+render();
+}
 
 load();render();
 </script>
