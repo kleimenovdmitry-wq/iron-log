@@ -52,10 +52,27 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .ex-actions{display:flex;gap:6px;margin-top:8px}
 .del-ex-btn{background:#252525;border:none;border-radius:6px;padding:6px 10px;color:#E74C3C;font-size:11px;cursor:pointer}
 .add-ex-btn{background:#1A1A1A;border:1px dashed #333;border-radius:12px;padding:12px;color:#555;font-size:13px;cursor:pointer;width:100%;text-align:center;margin-top:4px}
-.add-ex-form{display:flex;gap:6px;margin-top:4px}
-.add-ex-input{flex:1;background:#252525;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:13px;outline:none}
-.add-ex-ok{width:36px;height:36px;background:#27AE60;border:none;border-radius:8px;color:#fff;font-size:16px;cursor:pointer}
-.add-ex-no{width:36px;height:36px;background:#333;border:none;border-radius:8px;color:#888;font-size:16px;cursor:pointer}
+.catalog-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.catalog-panel{background:#1A1A1A;border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:16px;padding-bottom:env(safe-area-inset-bottom,16px)}
+.catalog-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.catalog-close{background:none;border:none;color:#888;font-size:20px;cursor:pointer}
+.catalog-group{margin-bottom:12px}
+.catalog-group-name{font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.catalog-group-arrow{font-size:12px;transition:transform 0.2s}
+.catalog-items{display:flex;flex-direction:column;gap:4px}
+.catalog-item{background:#252525;border:none;border-radius:8px;padding:10px 12px;color:#ddd;font-size:13px;cursor:pointer;text-align:left;width:100%;display:flex;justify-content:space-between;align-items:center}
+.catalog-item:active{background:#333}
+.catalog-item-muscle{font-size:10px;color:#666}
+.catalog-custom{background:none;border:1px dashed #444;border-radius:8px;padding:10px 12px;color:#888;font-size:13px;cursor:pointer;width:100%;margin-top:8px}
+.catalog-custom-form{display:flex;gap:6px;margin-top:8px}
+.catalog-custom-input{flex:1;background:#252525;border:1px solid #444;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none}
+.catalog-custom-ok{width:40px;height:40px;background:#27AE60;border:none;border-radius:8px;color:#fff;font-size:18px;cursor:pointer}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:30;display:flex;align-items:center;justify-content:center}
+.confirm-box{background:#1A1A1A;border-radius:14px;padding:20px;width:280px;text-align:center}
+.confirm-text{font-size:15px;color:#ddd;margin-bottom:16px}
+.confirm-btns{display:flex;gap:10px}
+.confirm-yes{flex:1;background:#E74C3C;border:none;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.confirm-no{flex:1;background:#333;border:none;border-radius:8px;padding:12px;color:#aaa;font-size:14px;cursor:pointer}
 .finish-btn{position:fixed;bottom:env(safe-area-inset-bottom,12px);left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:456px;border:none;border-radius:12px;padding:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;z-index:10}
 @media(max-width:375px){
 body{padding:8px}
@@ -80,6 +97,8 @@ body{padding:8px}
 .finish-btn{padding:14px;font-size:14px;border-radius:10px;width:calc(100% - 16px)}
 .history-btn{padding:12px;font-size:13px}
 .last-weight{font-size:9px;padding:2px 5px}
+.catalog-panel{padding:12px}
+.catalog-item{padding:8px 10px;font-size:12px}
 }
 .done-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh}
 .done-emoji{font-size:64px;margin-bottom:16px}
@@ -106,6 +125,68 @@ body{padding:8px}
 <body>
 <div id="app"><div class="loading">Загрузка...</div></div>
 <script>
+// Exercise catalog by muscle group
+const CATALOG={
+"Грудь":[
+{name:"Жим штанги лёжа",muscle:"Грудь"},
+{name:"Жим гантелей лёжа",muscle:"Грудь"},
+{name:"Жим гантелей наклон 30°",muscle:"Верх груди"},
+{name:"Разводка гантелей лёжа",muscle:"Грудь"},
+{name:"Сведение рук в кроссовере",muscle:"Грудь"},
+{name:"Жим в тренажёре на грудь",muscle:"Грудь"},
+{name:"Отжимания",muscle:"Грудь",bodyweight:true},
+{name:"Отжимания на брусьях",muscle:"Грудь"},
+],
+"Спина":[
+{name:"Тяга горизонт. блока к поясу",muscle:"Спина"},
+{name:"Тяга верт. блока к груди",muscle:"Широчайшие"},
+{name:"Тяга гантели одной рукой",muscle:"Широчайшие"},
+{name:"Тяга штанги в наклоне",muscle:"Спина"},
+{name:"Гиперэкстензия без веса",muscle:"Разгибатели",bodyweight:true},
+{name:"Подтягивания",muscle:"Широчайшие",bodyweight:true},
+{name:"Подтягивания обратным хватом",muscle:"Широчайшие",bodyweight:true},
+{name:"Пуловер с гантелью",muscle:"Спина"},
+],
+"Бицепс":[
+{name:"Подъём штанги на бицепс",muscle:"Бицепс"},
+{name:"Молотковые сгибания",muscle:"Бицепс"},
+{name:"Сгибания на скамье Скотта",muscle:"Бицепс"},
+{name:"Концентрированные сгибания",muscle:"Бицепс"},
+{name:"Сгибания на блоке",muscle:"Бицепс"},
+],
+"Трицепс":[
+{name:"Французский жим лёжа",muscle:"Трицепс"},
+{name:"Тяга блока вниз узкий хват",muscle:"Трицепс"},
+{name:"Разгибание рук с гантелью из-за головы",muscle:"Трицепс"},
+{name:"Разгибания на блоке с канатом",muscle:"Трицепс"},
+{name:"Отжимания узким хватом",muscle:"Трицепс",bodyweight:true},
+],
+"Плечи":[
+{name:"Жим гантелей сидя",muscle:"Плечи"},
+{name:"Разводка гантелей в стороны",muscle:"Ср. дельты"},
+{name:"Подъём гантелей перед собой",muscle:"Перед. дельты"},
+{name:"Тяга штанги к подбородку",muscle:"Дельты"},
+{name:"Разводка в наклоне",muscle:"Задн. дельты"},
+{name:"Обратные разведения в тренажёре",muscle:"Задн. дельты"},
+],
+"Пресс":[
+{name:"Скручивания лёжа",muscle:"Пресс",bodyweight:true},
+{name:"Планка",muscle:"Кор",bodyweight:true},
+{name:"Подъём ног в висе",muscle:"Нижний пресс",bodyweight:true},
+{name:"Велосипед лёжа",muscle:"Пресс",bodyweight:true},
+{name:"Косые скручивания",muscle:"Косые",bodyweight:true},
+],
+"Ноги (собств. вес)":[
+{name:"Приседания (не ниже параллели)",muscle:"Ноги",bodyweight:true},
+{name:"Выпады на месте",muscle:"Ноги",bodyweight:true},
+],
+"Кардио":[
+{name:"Беговая дорожка",muscle:"Кардио",cardio:true},
+{name:"Велотренажёр",muscle:"Кардио",cardio:true},
+{name:"Эллиптический тренажёр",muscle:"Кардио",cardio:true},
+]
+};
+
 const WORKOUTS={
 A:{name:"Грудь + Трицепс",icon:"💪",color:"#E74C3C",exercises:[
 {id:"a1",name:"Жим штанги лёжа",sets:4,reps:"10",muscle:"Грудь"},
@@ -135,30 +216,74 @@ C:{name:"Плечи + Пресс",icon:"🔥",color:"#27AE60",exercises:[
 {id:"c8",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
 ]}
 };
+
 const SKEY="iron-log-v2";
-const allExDefs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises];
 let data={sessions:[],startDate:today()};
 let view="home";
 let activeType=null;
 let sessionData={};
+let showCatalog=false;
+let catalogOpenGroup=null;
+let showCustomInput=false;
+let confirmAction=null; // {text, onYes}
+
+// Map to store custom exercise names for history lookup
+let customExNames={};
+
+function getAllExDefs(){
+const defs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises];
+return defs;
+}
 
 function today(){return new Date().toISOString().split("T")[0]}
 function fmtDate(s){const d=new Date(s+"T12:00:00");const dd=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];const mm=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];return dd[d.getDay()]+", "+d.getDate()+" "+mm[d.getMonth()]}
-function load(){try{const s=localStorage.getItem(SKEY);if(s)data=JSON.parse(s)}catch(e){}}
-function save(){try{localStorage.setItem(SKEY,JSON.stringify(data))}catch(e){}}
+function load(){try{const s=localStorage.getItem(SKEY);if(s)data=JSON.parse(s);const cn=localStorage.getItem("iron-log-custom-names");if(cn)customExNames=JSON.parse(cn)}catch(e){}}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(data));localStorage.setItem("iron-log-custom-names",JSON.stringify(customExNames))}catch(e){}}
 function nextType(){if(!data.sessions.length)return"A";const l=data.sessions[data.sessions.length-1].type;return l==="A"?"B":l==="B"?"C":"A"}
 function weekNum(){const s=new Date(data.startDate+"T12:00:00");const n=new Date();return Math.min(Math.max(Math.floor((n-s)/(7*864e5))+1,1),4)}
 function lastWeight(exId){for(let i=data.sessions.length-1;i>=0;i--){const s=data.sessions[i];if(s.exercises[exId]){const st=s.exercises[exId].sets.filter(x=>x.weight).pop();if(st)return st.weight}}return null}
 
-function render(){
-const app=document.getElementById("app");
-if(view==="home")renderHome(app);
-else if(view==="session")renderSession(app);
-else if(view==="done")renderDone(app);
-else if(view==="history")renderHistory(app);
+function getExName(exId){
+// First check current workout exercises
+const allDefs=getAllExDefs();
+const def=allDefs.find(e=>e.id===exId);
+if(def)return{name:def.name,cardio:!!def.cardio,bodyweight:!!def.bodyweight};
+// Then check custom names map
+if(customExNames[exId])return{name:customExNames[exId].name,cardio:!!customExNames[exId].cardio,bodyweight:!!customExNames[exId].bodyweight};
+return{name:exId,cardio:false,bodyweight:false};
 }
 
-function renderHome(el){
+function showConfirm(text,onYes){
+confirmAction={text:text,onYes:onYes};
+render();
+}
+
+function render(){
+const app=document.getElementById("app");
+let html="";
+if(view==="home")html=renderHome();
+else if(view==="session")html=renderSession();
+else if(view==="done")html=renderDone();
+else if(view==="history")html=renderHistory();
+// Add confirm dialog
+if(confirmAction){
+html+=`<div class="confirm-overlay" onclick="confirmAction=null;render()">
+<div class="confirm-box" onclick="event.stopPropagation()">
+<div class="confirm-text">${confirmAction.text}</div>
+<div class="confirm-btns">
+<div class="confirm-no" onclick="confirmAction=null;render()">Нет</div>
+<div class="confirm-yes" onclick="confirmAction.onYes();confirmAction=null;render()">Да</div>
+</div></div></div>`;
+}
+// Add catalog overlay
+if(showCatalog){
+html+=renderCatalog();
+}
+app.innerHTML=html;
+if(showCatalog&&showCustomInput){const inp=document.getElementById("custom-ex-input");if(inp)inp.focus()}
+}
+
+function renderHome(){
 const next=nextType();const w=WORKOUTS[next];const wk=weekNum();
 const now=Date.now();const weekAgo=now-7*864e5;
 const done={A:false,B:false,C:false};
@@ -174,13 +299,13 @@ h+=`</div><div class="section-label">Следующая тренировка</di
 h+=`<div class="next-btn" style="background:${w.color}" onclick="startWorkout('${next}')">
 <span class="next-btn-icon">${w.icon}</span><span class="next-btn-text">${w.name}</span><span class="next-btn-arrow">→</span></div>`;
 h+=`<div class="history-btn" onclick="goHistory()">📋 История тренировок</div>`;
-el.innerHTML=h;
+return h;
 }
 
-function renderSession(el){
+function renderSession(){
 const wo=WORKOUTS[activeType];
 let totalS=0,doneS=0;
-for(const ex of wo.exercises){const sd=sessionData[ex.id];totalS+=sd.sets.length;doneS+=sd.sets.filter(s=>s.done).length}
+for(const ex of wo.exercises){const sd=sessionData[ex.id];if(!sd)continue;totalS+=sd.sets.length;doneS+=sd.sets.filter(s=>s.done).length}
 const pct=totalS?Math.round(doneS/totalS*100):0;
 let h=`<div class="session-header" style="border-bottom:3px solid ${wo.color}">
 <div class="back-btn" onclick="goHome()">← Назад</div>
@@ -189,48 +314,81 @@ let h=`<div class="session-header" style="border-bottom:3px solid ${wo.color}">
 <div class="progress-text">${doneS}/${totalS} подходов</div></div>`;
 h+=`<div class="exercise-list">`;
 for(const ex of wo.exercises){
-const lw=lastWeight(ex.id);const unit=ex.cardio?"км/ч":"кг";const runit=ex.cardio?"мин":"раз";
+if(!sessionData[ex.id])continue;
+const lw=lastWeight(ex.id);
+const isCardio=!!ex.cardio;
+const isBw=!!ex.bodyweight;
+const unit=isCardio?"км/ч":(isBw?"":"кг");
+const runit=isCardio?"мин":"раз";
+const phW=isCardio?"км/ч":(isBw?"—":"кг");
 h+=`<div class="exercise-card"><div class="ex-header"><div><div class="ex-name">${ex.name}</div>
-<div class="ex-muscle">${ex.muscle}${ex.muscle?' · ':''}${ex.sets}×${ex.reps}</div></div>`;
-if(lw)h+=`<div class="last-weight">Прошлый: ${lw} ${unit}</div>`;
+<div class="ex-muscle">${ex.muscle?ex.muscle+' · ':''}${ex.sets}×${ex.reps}${isBw?' (собств. вес)':''}</div></div>`;
+if(lw&&!isBw)h+=`<div class="last-weight">Прошлый: ${lw} ${unit}</div>`;
 h+=`</div><div class="sets-grid">`;
 sessionData[ex.id].sets.forEach((s,i)=>{
 const isDone=s.done;
-h+=`<div class="set-row"><div class="set-num">${i+1}</div>
-<input type="number" inputmode="decimal" placeholder="${unit}" value="${s.weight}" class="set-input" onchange="updSet('${ex.id}',${i},'weight',this.value)">
-<input type="number" inputmode="numeric" placeholder="${runit}" value="${s.reps}" class="set-input" onchange="updSet('${ex.id}',${i},'reps',this.value)">
+h+=`<div class="set-row"><div class="set-num">${i+1}</div>`;
+if(!isBw){
+h+=`<input type="number" inputmode="decimal" placeholder="${phW}" value="${s.weight}" class="set-input" onchange="updSet('${ex.id}',${i},'weight',this.value)">`;
+}
+h+=`<input type="number" inputmode="numeric" placeholder="${runit}" value="${s.reps}" class="set-input" onchange="updSet('${ex.id}',${i},'reps',this.value)">
 <div class="check-ind${isDone?' done':''}" style="background:${isDone?wo.color:'transparent'};border-color:${isDone?wo.color:'#333'};color:${isDone?'#fff':'#333'}">${isDone?'✓':'○'}</div>
-<div class="del-set-btn" onclick="delSet('${ex.id}',${i})">−</div></div>`;
+<div class="del-set-btn" onclick="confirmDelSet('${ex.id}',${i})">−</div></div>`;
 });
 h+=`</div>`;
 h+=`<div class="add-set-btn" onclick="addSet('${ex.id}')">+ подход</div>`;
-h+=`<div class="ex-actions"><div class="del-ex-btn" onclick="delExercise('${ex.id}')">Удалить упражнение</div></div>`;
+h+=`<div class="ex-actions"><div class="del-ex-btn" onclick="confirmDelEx('${ex.id}')">Удалить упражнение</div></div>`;
 h+=`</div>`;
 }
-if(showAddEx){
-h+=`<div class="add-ex-form"><input type="text" id="new-ex-name" placeholder="Название упражнения" class="add-ex-input"><div class="add-ex-ok" onclick="addExercise()">+</div><div class="add-ex-no" onclick="showAddEx=false;render()">✕</div></div>`;
-}else{
-h+=`<div class="add-ex-btn" onclick="showAddEx=true;render()">+ Добавить упражнение</div>`;
-}
+h+=`<div class="add-ex-btn" onclick="showCatalog=true;catalogOpenGroup=null;showCustomInput=false;render()">+ Добавить упражнение</div>`;
 h+=`</div>`;
 const canFinish=doneS>0;
 h+=`<button class="finish-btn" style="background:${doneS===totalS?wo.color:'#555'};opacity:${canFinish?1:0.5}" ${canFinish?'':'disabled'} onclick="finishWorkout()">Завершить тренировку</button>`;
-el.innerHTML=h;
+return h;
 }
 
-function renderDone(el){
+function renderCatalog(){
+let h=`<div class="catalog-overlay" onclick="showCatalog=false;showCustomInput=false;render()">
+<div class="catalog-panel" onclick="event.stopPropagation()">
+<div class="catalog-title"><span>Выберите упражнение</span><div class="catalog-close" onclick="showCatalog=false;showCustomInput=false;render()">✕</div></div>`;
+for(const[group,exercises]of Object.entries(CATALOG)){
+const isOpen=catalogOpenGroup===group;
+h+=`<div class="catalog-group">
+<div class="catalog-group-name" onclick="catalogOpenGroup=catalogOpenGroup==='${group}'?null:'${group}';render()">
+<span>${group}</span><span class="catalog-group-arrow" style="transform:rotate(${isOpen?'90':'0'}deg)">▶</span></div>`;
+if(isOpen){
+h+=`<div class="catalog-items">`;
+exercises.forEach(ex=>{
+h+=`<div class="catalog-item" onclick="addFromCatalog('${ex.name.replace(/'/g,"\\'")}','${(ex.muscle||'').replace(/'/g,"\\'")}',${!!ex.cardio},${!!ex.bodyweight})">
+<span>${ex.name}</span><span class="catalog-item-muscle">${ex.muscle||''}</span></div>`;
+});
+h+=`</div>`;
+}
+h+=`</div>`;
+}
+if(showCustomInput){
+h+=`<div class="catalog-custom-form"><input type="text" id="custom-ex-input" placeholder="Название упражнения" class="catalog-custom-input">
+<div class="catalog-custom-ok" onclick="addCustomFromCatalog()">+</div></div>`;
+}else{
+h+=`<div class="catalog-custom" onclick="showCustomInput=true;render()">✏️ Своё упражнение</div>`;
+}
+h+=`</div></div>`;
+return h;
+}
+
+function renderDone(){
 const wo=WORKOUTS[activeType];
-el.innerHTML=`<div class="done-screen"><div class="done-emoji">🎯</div>
+return `<div class="done-screen"><div class="done-emoji">🎯</div>
 <div class="done-title">Тренировка записана!</div>
 <div class="done-subtitle">${wo.icon} ${wo.name}</div>
 <button class="done-btn" onclick="goHome()">На главную</button></div>`;
 }
 
-function renderHistory(el){
+function renderHistory(){
 const sessions=[...data.sessions].reverse();
 let h=`<div class="history-header"><div class="back-btn" onclick="goHome()">← Назад</div>
 <div class="history-title">История тренировок</div></div>`;
-if(!sessions.length){h+=`<div class="empty-history">Пока нет записей</div>`;el.innerHTML=h;return}
+if(!sessions.length)return h+`<div class="empty-history">Пока нет записей</div>`;
 h+=`<div class="history-list">`;
 for(const s of sessions){
 const w=WORKOUTS[s.type];
@@ -240,9 +398,9 @@ h+=`<div class="history-card" style="border-left:4px solid ${w.color}">
 <div class="history-card-top"><span>${w.icon} ${w.name}</span><span class="history-date">${fmtDate(s.date)}</span></div>
 <div class="history-detail">${doneS}/${totalS} подходов</div><div class="history-ex-list">`;
 for(const[exId,exData]of Object.entries(s.exercises)){
-const exDef=allExDefs.find(e=>e.id===exId);
-const exName=exDef?exDef.name:exId;
-const isCardio=exDef&&exDef.cardio;
+const exInfo=getExName(exId);
+const exName=exInfo.name;
+const isCardio=exInfo.cardio;
 const wUnit=isCardio?"км/ч":"кг";const rUnit=isCardio?"мин":"×";
 const doneSetsEx=exData.sets.filter(st=>st.done);
 if(!doneSetsEx.length)continue;
@@ -261,7 +419,7 @@ h+=`</div></div>`;
 h+=`</div></div>`;
 }
 h+=`</div>`;
-el.innerHTML=h;
+return h;
 }
 
 function startWorkout(type){
@@ -269,48 +427,72 @@ activeType=type;const wo=WORKOUTS[type];sessionData={};
 wo.exercises.forEach(ex=>{sessionData[ex.id]={sets:Array.from({length:ex.sets},()=>({weight:"",reps:"",done:false}))}});
 view="session";render();
 }
+
 function updSet(exId,idx,field,val){
 sessionData[exId].sets[idx][field]=val;
 const s=sessionData[exId].sets[idx];
+const ex=WORKOUTS[activeType].exercises.find(e=>e.id===exId);
+const isBw=ex&&ex.bodyweight;
+if(isBw){
+s.done=s.reps!=="";
+}else{
 s.done=s.weight!==""&&s.reps!=="";
+}
 render();
 }
+
 function finishWorkout(){
+// Store exercise names for custom exercises before saving
+const wo=WORKOUTS[activeType];
+wo.exercises.forEach(ex=>{
+if(ex.id.startsWith("custom_")){
+customExNames[ex.id]={name:ex.name,cardio:!!ex.cardio,bodyweight:!!ex.bodyweight};
+}
+});
 data.sessions.push({date:today(),type:activeType,exercises:JSON.parse(JSON.stringify(sessionData)),ts:Date.now()});
 save();view="done";render();
 }
-function goHome(){view="home";activeType=null;showAddEx=false;render()}
-function goHistory(){view="history";render()}
 
-let showAddEx=false;
+function goHome(){view="home";activeType=null;showCatalog=false;showCustomInput=false;render()}
+function goHistory(){view="history";render()}
 
 function addSet(exId){
 sessionData[exId].sets.push({weight:"",reps:"",done:false});
 render();
 }
-function delSet(exId,idx){
+
+function confirmDelSet(exId,idx){
 if(sessionData[exId].sets.length<=1)return;
+showConfirm("Удалить подход "+(idx+1)+"?",function(){
 sessionData[exId].sets.splice(idx,1);
-render();
+});
 }
-function addExercise(){
-const n=document.getElementById("new-ex-name");
-const name=(n?n.value:"").trim();
-if(!name){showAddEx=false;render();return}
-const id="custom_"+Date.now();
-const wo=WORKOUTS[activeType];
-const newEx={id:id,name:name,sets:3,reps:"10",muscle:"",cardio:false};
-wo.exercises.push(newEx);
-sessionData[id]={sets:Array.from({length:3},()=>({weight:"",reps:"",done:false}))};
-showAddEx=false;render();
-}
-function delExercise(exId){
+
+function confirmDelEx(exId){
 const wo=WORKOUTS[activeType];
 const ex=wo.exercises.find(e=>e.id===exId);
-if(!confirm("Удалить «"+(ex?ex.name:"")+"»?"))return;
+showConfirm("Удалить «"+(ex?ex.name:"")+"»?",function(){
 wo.exercises=wo.exercises.filter(e=>e.id!==exId);
 delete sessionData[exId];
-render();
+});
+}
+
+function addFromCatalog(name,muscle,isCardio,isBw){
+const id="custom_"+Date.now();
+const wo=WORKOUTS[activeType];
+const newEx={id:id,name:name,sets:3,reps:isCardio?"8-10 мин":"10",muscle:muscle,cardio:isCardio,bodyweight:isBw};
+wo.exercises.push(newEx);
+sessionData[id]={sets:Array.from({length:3},()=>({weight:"",reps:"",done:false}))};
+customExNames[id]={name:name,cardio:isCardio,bodyweight:isBw};
+save();
+showCatalog=false;showCustomInput=false;render();
+}
+
+function addCustomFromCatalog(){
+const inp=document.getElementById("custom-ex-input");
+const name=(inp?inp.value:"").trim();
+if(!name)return;
+addFromCatalog(name,"",false,false);
 }
 
 load();render();
