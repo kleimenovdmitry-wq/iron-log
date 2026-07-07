@@ -15,6 +15,12 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:4px}
 .logo{font-size:20px;font-weight:800;letter-spacing:3px;color:#fff}
 .week-badge{background:#1A1A1A;border:1px solid #333;border-radius:20px;padding:5px 12px;font-size:12px;color:#aaa}
+.app-version{font-size:10px;color:#555;margin-top:3px;letter-spacing:0.5px}
+.workout-extra{display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:12px;padding:14px 16px;cursor:pointer;margin-bottom:20px}
+.workout-extra:active{transform:scale(0.98)}
+.we-icon{font-size:22px}
+.we-name{font-size:15px;font-weight:600;color:#ddd;flex:1}
+.we-status{font-size:18px;font-weight:700}
 .section-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .workout-grid{display:flex;gap:8px;margin-bottom:16px}
 .workout-card{flex:1;background:#1A1A1A;border:none;border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer}
@@ -97,6 +103,9 @@ body{padding:8px}
 .finish-btn{padding:14px;font-size:14px;border-radius:10px;width:calc(100% - 16px)}
 .history-btn{padding:12px;font-size:13px}
 .last-weight{font-size:9px;padding:2px 5px}
+.we-name{font-size:14px}
+.we-icon{font-size:20px}
+.app-version{font-size:9px}
 .catalog-panel{padding:12px}
 .catalog-item{padding:8px 10px;font-size:12px}
 }
@@ -176,8 +185,13 @@ const CATALOG={
 {name:"Велосипед лёжа",muscle:"Пресс",bodyweight:true},
 {name:"Косые скручивания",muscle:"Косые",bodyweight:true},
 ],
-"Ноги (собств. вес)":[
+"Воркаут (собств. вес)":[
 {name:"Приседания (не ниже параллели)",muscle:"Ноги",bodyweight:true},
+{name:"Отжимания",muscle:"Грудь",bodyweight:true},
+{name:"Планка",muscle:"Кор",bodyweight:true},
+{name:"Отжимания Тайсона",muscle:"Грудь/плечи",bodyweight:true},
+{name:"Отжимания на брусьях",muscle:"Грудь/трицепс",bodyweight:true},
+{name:"Подтягивания",muscle:"Спина",bodyweight:true},
 {name:"Выпады на месте",muscle:"Ноги",bodyweight:true},
 ],
 "Кардио":[
@@ -214,10 +228,13 @@ C:{name:"Плечи + Пресс",icon:"🔥",color:"#27AE60",exercises:[
 {id:"c6",name:"Планка",sets:3,reps:"30-40 сек",muscle:"Кор"},
 {id:"c7",name:"Подъём ног в висе",sets:3,reps:"10-12",muscle:"Нижний пресс"},
 {id:"c8",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
-]}
+]},
+D:{name:"Воркаут",icon:"🤸",color:"#8E44AD",exercises:[]}
 };
 
 const SKEY="iron-log-v2";
+const APP_VERSION="v1.3";
+const APP_DATE="3 июл 2026";
 let data={sessions:[],startDate:today()};
 let view="home";
 let activeType=null;
@@ -231,7 +248,7 @@ let confirmAction=null; // {text, onYes}
 let customExNames={};
 
 function getAllExDefs(){
-const defs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises];
+const defs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises,...WORKOUTS.D.exercises];
 return defs;
 }
 
@@ -239,7 +256,7 @@ function today(){return new Date().toISOString().split("T")[0]}
 function fmtDate(s){const d=new Date(s+"T12:00:00");const dd=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];const mm=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];return dd[d.getDay()]+", "+d.getDate()+" "+mm[d.getMonth()]}
 function load(){try{const s=localStorage.getItem(SKEY);if(s)data=JSON.parse(s);const cn=localStorage.getItem("iron-log-custom-names");if(cn)customExNames=JSON.parse(cn)}catch(e){}}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(data));localStorage.setItem("iron-log-custom-names",JSON.stringify(customExNames))}catch(e){}}
-function nextType(){if(!data.sessions.length)return"A";const l=data.sessions[data.sessions.length-1].type;return l==="A"?"B":l==="B"?"C":"A"}
+function nextType(){const rot=data.sessions.filter(s=>s.type!=="D");if(!rot.length)return"A";const l=rot[rot.length-1].type;return l==="A"?"B":l==="B"?"C":"A"}
 function weekNum(){const s=new Date(data.startDate+"T12:00:00");const n=new Date();return Math.min(Math.max(Math.floor((n-s)/(7*864e5))+1,1),4)}
 function lastWeight(exId){for(let i=data.sessions.length-1;i>=0;i--){const s=data.sessions[i];if(s.exercises[exId]){const st=s.exercises[exId].sets.filter(x=>x.weight).pop();if(st)return st.weight}}return null}
 
@@ -286,11 +303,12 @@ if(showCatalog&&showCustomInput){const inp=document.getElementById("custom-ex-in
 function renderHome(){
 const next=nextType();const w=WORKOUTS[next];const wk=weekNum();
 const now=Date.now();const weekAgo=now-7*864e5;
-const done={A:false,B:false,C:false};
+const done={A:false,B:false,C:false,D:false};
 data.sessions.forEach(s=>{if(s.ts>weekAgo)done[s.type]=true});
-let h=`<div class="header"><div class="logo">IRON LOG</div><div class="week-badge">Неделя ${wk}/4</div></div>`;
+let h=`<div class="header"><div><div class="logo">IRON LOG</div><div class="app-version">${APP_VERSION} · ${APP_DATE}</div></div><div class="week-badge">Неделя ${wk}/4</div></div>`;
 h+=`<div class="section-label">Тренировки на этой неделе</div><div class="workout-grid">`;
-for(const[k,v]of Object.entries(WORKOUTS)){
+for(const k of ["A","B","C"]){
+const v=WORKOUTS[k];
 h+=`<div class="workout-card" style="border-top:3px solid ${v.color}" onclick="startWorkout('${k}')">
 <div class="wc-icon">${v.icon}</div><div class="wc-name">${v.name}</div>
 <div class="wc-status" style="color:${done[k]?'#27AE60':'#555'}">${done[k]?'✓':'○'}</div></div>`;
@@ -298,6 +316,10 @@ h+=`<div class="workout-card" style="border-top:3px solid ${v.color}" onclick="s
 h+=`</div><div class="section-label">Следующая тренировка</div>`;
 h+=`<div class="next-btn" style="background:${w.color}" onclick="startWorkout('${next}')">
 <span class="next-btn-icon">${w.icon}</span><span class="next-btn-text">${w.name}</span><span class="next-btn-arrow">→</span></div>`;
+const d=WORKOUTS.D;
+h+=`<div class="workout-extra" style="border-left:3px solid ${d.color}" onclick="startWorkout('D')">
+<span class="we-icon">${d.icon}</span><span class="we-name">${d.name}</span>
+<span class="we-status" style="color:${done.D?'#27AE60':'#555'}">${done.D?'✓':'○'}</span></div>`;
 h+=`<div class="history-btn" onclick="goHistory()">📋 История тренировок</div>`;
 return h;
 }
@@ -351,6 +373,15 @@ function renderCatalog(){
 let h=`<div class="catalog-overlay" onclick="showCatalog=false;showCustomInput=false;render()">
 <div class="catalog-panel" onclick="event.stopPropagation()">
 <div class="catalog-title"><span>Выберите упражнение</span><div class="catalog-close" onclick="showCatalog=false;showCustomInput=false;render()">✕</div></div>`;
+if(activeType==="D"){
+// Flat list of bodyweight exercises for Workout
+h+=`<div class="catalog-items">`;
+CATALOG["Воркаут (собств. вес)"].forEach(ex=>{
+h+=`<div class="catalog-item" onclick="addFromCatalog('${ex.name.replace(/'/g,"\\'")}','${(ex.muscle||'').replace(/'/g,"\\'")}',${!!ex.cardio},${!!ex.bodyweight})">
+<span>${ex.name}</span><span class="catalog-item-muscle">${ex.muscle||''}</span></div>`;
+});
+h+=`</div>`;
+}else{
 for(const[group,exercises]of Object.entries(CATALOG)){
 const isOpen=catalogOpenGroup===group;
 h+=`<div class="catalog-group">
@@ -365,6 +396,7 @@ h+=`<div class="catalog-item" onclick="addFromCatalog('${ex.name.replace(/'/g,"\
 h+=`</div>`;
 }
 h+=`</div>`;
+}
 }
 if(showCustomInput){
 h+=`<div class="catalog-custom-form"><input type="text" id="custom-ex-input" placeholder="Название упражнения" class="catalog-custom-input">
