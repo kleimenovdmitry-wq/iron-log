@@ -14,26 +14,14 @@ input[type=number]{-webkit-appearance:none;-moz-appearance:textfield}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-top:4px}
 .logo{font-size:20px;font-weight:800;letter-spacing:3px;color:#fff}
-.week-badge{background:#1A1A1A;border:1px solid #333;border-radius:20px;padding:5px 12px;font-size:12px;color:#aaa}
 .app-version{font-size:10px;color:#555;margin-top:3px;letter-spacing:0.5px}
-.workout-extra{display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:12px;padding:14px 16px;cursor:pointer;margin-bottom:20px}
-.workout-extra:active{transform:scale(0.98)}
-.we-icon{font-size:22px}
-.we-name{font-size:15px;font-weight:600;color:#ddd;flex:1}
-.we-status{font-size:18px;font-weight:700}
-.section-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.workout-grid{display:flex;gap:8px;margin-bottom:16px}
-.workout-card{flex:1;background:#1A1A1A;border:none;border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer}
+.workout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.workout-card{background:#1A1A1A;border:none;border-radius:12px;padding:20px 8px;text-align:center;cursor:pointer}
 .workout-card:active{transform:scale(0.96)}
-.wc-icon{font-size:22px;margin-bottom:4px}
-.wc-name{font-size:11px;font-weight:600;color:#ddd;margin-bottom:3px}
-.wc-status{font-size:18px;margin-top:3px;font-weight:700}
-.next-btn{width:100%;border:none;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:20px}
-.next-btn:active{transform:scale(0.98)}
-.next-btn-icon{font-size:24px}
-.next-btn-text{font-size:16px;font-weight:700;color:#fff;flex:1;text-align:left}
-.next-btn-arrow{font-size:20px;color:rgba(255,255,255,0.7)}
-.history-btn{width:100%;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:12px;padding:14px;color:#aaa;font-size:14px;cursor:pointer;margin-top:4px}
+.wc-icon{font-size:28px;margin-bottom:6px}
+.wc-name{font-size:14px;font-weight:600;color:#ddd;margin-bottom:4px}
+.wc-status{font-size:20px;margin-top:4px;font-weight:700}
+.history-btn{width:100%;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:12px;padding:20px;color:#aaa;font-size:15px;cursor:pointer;margin-top:0}
 .back-btn{background:none;border:none;color:#888;font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:6px}
 .session-header{padding-bottom:10px;margin-bottom:12px}
 .session-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
@@ -83,15 +71,10 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 @media(max-width:375px){
 body{padding:8px}
 .logo{font-size:17px;letter-spacing:2px}
-.week-badge{padding:4px 10px;font-size:11px}
-.section-label{font-size:11px}
-.workout-card{padding:10px 4px;border-radius:10px}
-.wc-icon{font-size:18px;margin-bottom:2px}
-.wc-name{font-size:10px}
-.wc-status{font-size:16px}
-.next-btn{padding:14px;gap:10px}
-.next-btn-icon{font-size:20px}
-.next-btn-text{font-size:14px}
+.workout-card{padding:16px 6px;border-radius:10px}
+.wc-icon{font-size:24px;margin-bottom:4px}
+.wc-name{font-size:12px}
+.wc-status{font-size:18px}
 .session-title{font-size:16px}
 .exercise-card{padding:8px 10px}
 .ex-name{font-size:13px}
@@ -101,10 +84,8 @@ body{padding:8px}
 .set-input{padding:7px 2px;font-size:13px;border-radius:6px}
 .check-ind{width:24px;height:24px;font-size:11px;border-radius:6px}
 .finish-btn{padding:14px;font-size:14px;border-radius:10px;width:calc(100% - 16px)}
-.history-btn{padding:12px;font-size:13px}
+.history-btn{padding:16px;font-size:14px}
 .last-weight{font-size:9px;padding:2px 5px}
-.we-name{font-size:14px}
-.we-icon{font-size:20px}
 .app-version{font-size:9px}
 .catalog-panel{padding:12px}
 .catalog-item{padding:8px 10px;font-size:12px}
@@ -185,21 +166,12 @@ const CATALOG={
 {name:"Разводка в наклоне",muscle:"Задн. дельты"},
 {name:"Обратные разведения в тренажёре",muscle:"Задн. дельты"},
 ],
-"Пресс":[
-{name:"Скручивания лёжа",muscle:"Пресс",bodyweight:true},
-{name:"Планка",muscle:"Кор",bodyweight:true},
-{name:"Подъём ног в висе",muscle:"Нижний пресс",bodyweight:true},
-{name:"Велосипед лёжа",muscle:"Пресс",bodyweight:true},
-{name:"Косые скручивания",muscle:"Косые",bodyweight:true},
-],
 "Воркаут (собств. вес)":[
 {name:"Приседания (не ниже параллели)",muscle:"Ноги",bodyweight:true},
 {name:"Отжимания",muscle:"Грудь",bodyweight:true},
-{name:"Планка",muscle:"Кор",bodyweight:true},
 {name:"Отжимания Тайсона",muscle:"Грудь/плечи",bodyweight:true},
 {name:"Отжимания на брусьях",muscle:"Грудь/трицепс",bodyweight:true},
 {name:"Подтягивания",muscle:"Спина",bodyweight:true},
-{name:"Выпады на месте",muscle:"Ноги",bodyweight:true},
 ],
 "Кардио":[
 {name:"Беговая дорожка",muscle:"Кардио",cardio:true},
@@ -226,22 +198,19 @@ B:{name:"Спина + Бицепс",icon:"🏋️",color:"#2980B9",exercises:[
 {id:"b6",name:"Молотковые сгибания",sets:3,reps:"10",muscle:"Бицепс"},
 {id:"b7",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
 ]},
-C:{name:"Плечи + Пресс",icon:"🔥",color:"#27AE60",exercises:[
+C:{name:"Плечи",icon:"🔥",color:"#27AE60",exercises:[
 {id:"c1",name:"Жим гантелей сидя",sets:4,reps:"10",muscle:"Плечи"},
 {id:"c2",name:"Разводка гантелей в стороны",sets:3,reps:"12",muscle:"Ср. дельты"},
 {id:"c3",name:"Тяга штанги к подбородку",sets:3,reps:"10",muscle:"Дельты"},
 {id:"c4",name:"Разводка в наклоне",sets:3,reps:"12",muscle:"Задн. дельты"},
-{id:"c5",name:"Скручивания лёжа",sets:3,reps:"15-20",muscle:"Пресс"},
-{id:"c6",name:"Планка",sets:3,reps:"30-40 сек",muscle:"Кор"},
-{id:"c7",name:"Подъём ног в висе",sets:3,reps:"10-12",muscle:"Нижний пресс"},
 {id:"c8",name:"Беговая дорожка",sets:1,reps:"8-10 мин",muscle:"Кардио",cardio:true}
 ]},
 D:{name:"Воркаут",icon:"🤸",color:"#8E44AD",exercises:[]}
 };
 
 const SKEY="iron-log-v2";
-const APP_VERSION="v1.4";
-const APP_DATE="3 июл 2026";
+const APP_VERSION="v1.5";
+const APP_DATE="7 июл 2026";
 let data={sessions:[],startDate:today()};
 let view="home";
 let activeType=null;
@@ -255,6 +224,13 @@ let expandedMonths=null; // Set of expanded month keys; null = init with current
 // Map to store custom exercise names for history lookup
 let customExNames={};
 
+// Retired built-in exercises — kept only so old history stays readable
+const RETIRED={
+c5:{name:"Скручивания лёжа"},
+c6:{name:"Планка"},
+c7:{name:"Подъём ног в висе"}
+};
+
 function getAllExDefs(){
 const defs=[...WORKOUTS.A.exercises,...WORKOUTS.B.exercises,...WORKOUTS.C.exercises,...WORKOUTS.D.exercises];
 return defs;
@@ -265,7 +241,6 @@ function fmtDate(s){const d=new Date(s+"T12:00:00");const dd=["Вс","Пн","В�
 function load(){try{const s=localStorage.getItem(SKEY);if(s)data=JSON.parse(s);const cn=localStorage.getItem("iron-log-custom-names");if(cn)customExNames=JSON.parse(cn)}catch(e){}}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(data));localStorage.setItem("iron-log-custom-names",JSON.stringify(customExNames))}catch(e){}}
 function nextType(){const rot=data.sessions.filter(s=>s.type!=="D");if(!rot.length)return"A";const l=rot[rot.length-1].type;return l==="A"?"B":l==="B"?"C":"A"}
-function weekNum(){const s=new Date(data.startDate+"T12:00:00");const n=new Date();return Math.min(Math.max(Math.floor((n-s)/(7*864e5))+1,1),4)}
 function lastWeight(exId){for(let i=data.sessions.length-1;i>=0;i--){const s=data.sessions[i];if(s.exercises[exId]){const st=s.exercises[exId].sets.filter(x=>x.weight).pop();if(st)return st.weight}}return null}
 
 function getExName(exId){
@@ -275,6 +250,7 @@ const def=allDefs.find(e=>e.id===exId);
 if(def)return{name:def.name,cardio:!!def.cardio,bodyweight:!!def.bodyweight};
 // Then check custom names map
 if(customExNames[exId])return{name:customExNames[exId].name,cardio:!!customExNames[exId].cardio,bodyweight:!!customExNames[exId].bodyweight};
+if(RETIRED[exId])return{name:RETIRED[exId].name,cardio:false,bodyweight:true};
 return{name:exId,cardio:false,bodyweight:false};
 }
 
@@ -309,25 +285,18 @@ if(showCatalog&&showCustomInput){const inp=document.getElementById("custom-ex-in
 }
 
 function renderHome(){
-const next=nextType();const w=WORKOUTS[next];const wk=weekNum();
 const now=Date.now();const weekAgo=now-7*864e5;
 const done={A:false,B:false,C:false,D:false};
 data.sessions.forEach(s=>{if(s.ts>weekAgo)done[s.type]=true});
-let h=`<div class="header"><div><div class="logo">IRON LOG</div><div class="app-version">${APP_VERSION} · ${APP_DATE}</div></div><div class="week-badge">Неделя ${wk}/4</div></div>`;
-h+=`<div class="section-label">Тренировки на этой неделе</div><div class="workout-grid">`;
-for(const k of ["A","B","C"]){
+let h=`<div class="header"><div><div class="logo">IRON LOG</div><div class="app-version">${APP_VERSION} · ${APP_DATE}</div></div></div>`;
+h+=`<div class="workout-grid">`;
+for(const k of ["A","B","C","D"]){
 const v=WORKOUTS[k];
 h+=`<div class="workout-card" style="border-top:3px solid ${v.color}" onclick="startWorkout('${k}')">
 <div class="wc-icon">${v.icon}</div><div class="wc-name">${v.name}</div>
 <div class="wc-status" style="color:${done[k]?'#27AE60':'#555'}">${done[k]?'✓':'○'}</div></div>`;
 }
-h+=`</div><div class="section-label">Следующая тренировка</div>`;
-h+=`<div class="next-btn" style="background:${w.color}" onclick="startWorkout('${next}')">
-<span class="next-btn-icon">${w.icon}</span><span class="next-btn-text">${w.name}</span><span class="next-btn-arrow">→</span></div>`;
-const d=WORKOUTS.D;
-h+=`<div class="workout-extra" style="border-left:3px solid ${d.color}" onclick="startWorkout('D')">
-<span class="we-icon">${d.icon}</span><span class="we-name">${d.name}</span>
-<span class="we-status" style="color:${done.D?'#27AE60':'#555'}">${done.D?'✓':'○'}</span></div>`;
+h+=`</div>`;
 h+=`<div class="history-btn" onclick="goHistory()">📋 История тренировок</div>`;
 return h;
 }
