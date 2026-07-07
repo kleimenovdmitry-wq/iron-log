@@ -117,6 +117,13 @@ body{padding:8px}
 .history-header{margin-bottom:20px}
 .history-title{font-size:20px;font-weight:700;color:#fff;margin-top:8px}
 .history-list{display:flex;flex-direction:column;gap:10px}
+.month-group{margin-bottom:10px}
+.month-header{display:flex;justify-content:space-between;align-items:center;background:#1A1A1A;border-radius:10px;padding:12px 14px;cursor:pointer;margin-bottom:10px}
+.month-header:active{background:#222}
+.month-name{font-size:14px;font-weight:700;color:#fff}
+.month-meta{display:flex;align-items:center;gap:10px}
+.month-count{background:#333;color:#aaa;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.month-arrow{font-size:11px;color:#888;transition:transform 0.2s}
 .history-card{background:#1A1A1A;border-radius:12px;padding:14px}
 .history-card-top{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:#ddd;margin-bottom:6px}
 .history-date{font-size:12px;color:#666}
@@ -233,7 +240,7 @@ D:{name:"Воркаут",icon:"🤸",color:"#8E44AD",exercises:[]}
 };
 
 const SKEY="iron-log-v2";
-const APP_VERSION="v1.3";
+const APP_VERSION="v1.4";
 const APP_DATE="3 июл 2026";
 let data={sessions:[],startDate:today()};
 let view="home";
@@ -243,6 +250,7 @@ let showCatalog=false;
 let catalogOpenGroup=null;
 let showCustomInput=false;
 let confirmAction=null; // {text, onYes}
+let expandedMonths=null; // Set of expanded month keys; null = init with current month
 
 // Map to store custom exercise names for history lookup
 let customExNames={};
@@ -416,17 +424,41 @@ return `<div class="done-screen"><div class="done-emoji">🎯</div>
 <button class="done-btn" onclick="goHome()">На главную</button></div>`;
 }
 
+function monthKey(dateStr){return dateStr.slice(0,7)} // YYYY-MM
+function monthLabel(key){const[y,m]=key.split("-");const mm=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];return mm[Number(m)-1]+" "+y}
+function toggleMonth(key){if(!expandedMonths)expandedMonths=new Set();if(expandedMonths.has(key))expandedMonths.delete(key);else expandedMonths.add(key);render()}
+
 function renderHistory(){
-const sessions=[...data.sessions].reverse();
+const sessions=[...data.sessions].sort((a,b)=>b.ts-a.ts);
 let h=`<div class="history-header"><div class="back-btn" onclick="goHome()">← Назад</div>
 <div class="history-title">История тренировок</div></div>`;
 if(!sessions.length)return h+`<div class="empty-history">Пока нет записей</div>`;
+// Group by month
+const groups={};const order=[];
+for(const s of sessions){const k=monthKey(s.date);if(!groups[k]){groups[k]=[];order.push(k)}groups[k].push(s)}
+// Init expanded set with current month on first render
+if(expandedMonths===null){expandedMonths=new Set();if(order.length)expandedMonths.add(order[0])}
+for(const k of order){
+const isOpen=expandedMonths.has(k);
+h+=`<div class="month-group">
+<div class="month-header" onclick="toggleMonth('${k}')">
+<span class="month-name">${monthLabel(k)}</span>
+<span class="month-meta"><span class="month-count">${groups[k].length}</span><span class="month-arrow" style="transform:rotate(${isOpen?'90':'0'}deg)">▶</span></span></div>`;
+if(isOpen){
 h+=`<div class="history-list">`;
-for(const s of sessions){
+for(const s of groups[k])h+=renderHistoryCard(s);
+h+=`</div>`;
+}
+h+=`</div>`;
+}
+return h;
+}
+
+function renderHistoryCard(s){
 const w=WORKOUTS[s.type];
 let totalS=0,doneS=0;
 for(const ex of Object.values(s.exercises)){totalS+=ex.sets.length;doneS+=ex.sets.filter(st=>st.done).length}
-h+=`<div class="history-card" style="border-left:4px solid ${w.color}">
+let h=`<div class="history-card" style="border-left:4px solid ${w.color}">
 <div class="history-card-top"><span>${w.icon} ${w.name}</span><span class="history-date">${fmtDate(s.date)}</span></div>
 <div class="history-detail">${doneS}/${totalS} подходов</div><div class="history-ex-list">`;
 for(const[exId,exData]of Object.entries(s.exercises)){
@@ -449,8 +481,6 @@ h+=`<div class="history-set-badge" style="opacity:${st.done?1:0.35}">${st.weight
 h+=`</div></div>`;
 }
 h+=`</div></div>`;
-}
-h+=`</div>`;
 return h;
 }
 
